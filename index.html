@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Das Losungswort – Stadtrallye Speicherstadt</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --brick:#9b3b2a; --brick-d:#7a2c1f; --navy:#1d2f45; --sand:#f6f1e9; --paper:#fffdf9;
+    --ink:#1f1d1b; --muted:#6b645c; --ok:#2f7d4f; --bad:#b23a2a; --line:#e4dccf;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--sand);color:var(--ink);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%}
+  .wrap{max-width:640px;margin:0 auto;padding:16px 16px calc(28px + env(safe-area-inset-bottom))}
+  header.top{position:sticky;top:0;z-index:500;background:var(--navy);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:15px}
+  header.top b{font-weight:650}
+  .letters{display:flex;gap:4px}
+  .letters span{width:22px;height:26px;border-radius:4px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .letters span.got{background:#e9c46a;color:var(--navy)}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:30px;line-height:1.15;margin:8px 0 6px;color:var(--brick-d)}
+  h2{font-family:Georgia,serif;font-size:23px;margin:4px 0 10px;color:var(--brick-d)}
+  .kicker{text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--muted);font-weight:650}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .story{font-family:Georgia,serif;font-style:italic;border-left:4px solid var(--brick);padding:4px 0 4px 12px;color:#3d342c}
+  label{display:block;font-weight:600;margin:0 0 6px}
+  input[type=text],textarea{width:100%;font:inherit;padding:12px;border:1.5px solid #cfc5b6;border-radius:10px;background:#fff}
+  textarea{min-height:110px;resize:vertical}
+  input:focus,textarea:focus{outline:3px solid rgba(155,59,42,.25);border-color:var(--brick)}
+  button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:13px 16px;font-weight:650}
+  .btn{background:var(--brick);color:#fff;width:100%;margin-top:10px}
+  .btn:active{background:var(--brick-d)}
+  .btn.sec{background:#e8e0d4;color:var(--ink)}
+  .btn:disabled{opacity:.5}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid #cfc5b6;color:var(--ink);margin:8px 0;font-weight:500;padding:12px 14px}
+  .opt.right{border-color:var(--ok);background:#e9f5ee}
+  .opt.wrong{border-color:var(--bad);background:#fbecea;text-decoration:line-through;color:#7d6b66}
+  .fb{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:15.5px}
+  .fb.ok{background:#e9f5ee;color:#1f5a37}
+  .fb.no{background:#fbecea;color:#8a2a1e}
+  .muted{color:var(--muted);font-size:15px}
+  #map{height:300px;border-radius:14px;border:1px solid var(--line);margin:12px 0;background:#dfe6e9}
+  .maprow{display:flex;gap:8px}
+  .maprow .btn{margin-top:0}
+  .bigletter{font-family:Georgia,serif;font-size:72px;font-weight:700;color:var(--navy);text-align:center;line-height:1;margin:8px 0}
+  .pill{display:inline-block;background:#efe7da;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600;color:var(--muted)}
+  .tiles{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .tiles span{width:38px;height:44px;border-radius:8px;background:#e9c46a;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 4px;border-bottom:1px solid var(--line)}
+  td:last-child{text-align:right;font-weight:650}
+  .final-head{background:var(--navy);color:#fff;border-radius:14px;padding:18px;text-align:center}
+  .final-head .big{font-size:42px;font-weight:800;font-family:Georgia,serif;letter-spacing:.06em;color:#e9c46a}
+  .small{font-size:13px}
+  .hidden{display:none!important}
+  details summary{cursor:pointer;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<header class="top hidden" id="topbar">
+  <div><b id="tb-group"></b> · <span id="tb-step"></span></div>
+  <div class="letters" id="tb-letters"></div>
+</header>
+<main class="wrap" id="app"></main>
+
+<script>
+/* ============ EINSTELLUNGEN FÜR DIE LEHRKRAFT ============ */
+const CONFIG = {
+  teacherCode: "TMS1888",                 // Lehrkraft-Code: schaltet eine Station frei / setzt die Rallye zurück
+  meeting: "Treffpunkt am Ende: Eingang Miniatur Wunderland, Kehrwieder 2", // erscheint auf jedem Bildschirm
+};
+/* ======================================================== */
+const DATA = {"intro": "Hamburg, im Oktober 1888. Ihr seid Lehrlinge im Kontor des Kaffeehändlers Johannsen & Co. In wenigen Tagen feiert die Stadt den Zollanschluss an das Deutsche Reich – und mitten in der Aufregung ist eine Ladung Rohkaffee aus Brasilien angekommen. Sie soll in den nagelneuen Speicher am Kehrwieder. Doch der Quartiersmann öffnet nur, wer das geheime Losungswort kennt. Euer Prinzipal hat es in acht Buchstaben zerlegt und an acht Orten versteckt. Findet alle Buchstaben, setzt sie richtig zusammen – und lernt unterwegs, wie aus einem Wohnviertel die größte Lagerhausstadt der Welt wurde.", "stations": [{"name": "Elbphilharmonie", "lat": 53.54139, "lng": 9.98417, "way": "Startpunkt: Haupteingang der Elbphilharmonie (Westende der HafenCity, U3 Baumwall).", "unlock": {"q": "Wie heißt der Platz vor dem Haupteingang der Elbphilharmonie? Schaut auf das Straßenschild.", "type": "text", "accept": ["dGllaG5pZW5laGNzdHVlZHJlZHp0YWxw", "dGllaG5pZW5laGNzdHVlZA==", "dGllaG5pZWVoY3N0dWVkenRhbHA="]}, "story": "Euer Prinzipal steht am Kai und zeigt auf den mächtigen Kaiserspeicher mit seinem Uhrturm: „Hier landen die Überseeschiffe. Von hier aus geht unser Kaffee in die Stadt.“ Heute steht an derselben Stelle ein Konzerthaus aus Glas.", "qs": [{"q": "Worauf wurde der gläserne Neubau der Elbphilharmonie gesetzt?", "o": ["Auf den originalen Kaiserspeicher von 1875", "Auf den Kaispeicher A, ein Lagerhaus der 1960er-Jahre für Kakao, Tee und Tabak", "Auf einen Hochbunker aus dem Zweiten Weltkrieg", "Auf ein altes Werftgebäude"], "c": 1, "e": "Richtig ist der Kaispeicher A. Er wurde in den 1960er-Jahren nach Plänen von Werner Kallmorgen gebaut. Sein Vorgänger an derselben Stelle war der Kaiserspeicher von 1875, der im Zweiten Weltkrieg zerstört wurde."}, {"q": "Die öffentliche Plaza liegt zwischen altem Speicher und Glasbau. In welcher Höhe?", "o": ["17 m", "37 m", "57 m", "110 m"], "c": 1, "e": "Die Plaza liegt auf 37 m Höhe. Hinauf führt die 82 m lange, gebogene Rolltreppe „Tube“. 110 m ist der höchste Punkt des Gebäudes."}], "letter": "L"}, {"name": "Sandtorhafen", "lat": 53.54235, "lng": 9.9893, "way": "Geht an der Ostseite der Elbphilharmonie entlang zum Sandtorhafen – dem Hafenbecken mit den schwimmenden Stegen.", "unlock": {"q": "Was liegt hier im Sandtorhafen an den schwimmenden Stegen?", "type": "mc", "o": ["Große Containerschiffe", "Historische Schiffe (Segler, Dampfer, Schlepper)", "Kreuzfahrtschiffe", "Nur Ruderboote"], "c": 1}, "story": "„Seht ihr? Hier können die Schiffe direkt am Kai liegen“, sagt der Prinzipal stolz. „Früher mussten wir alles mühsam mit kleinen Booten vom Strom holen.“", "qs": [{"q": "Was war 1866 das Besondere am neuen Sandtorhafen?", "o": ["Er war Hamburgs erster Containerhafen", "Er war das erste künstliche Hafenbecken, in dem Seeschiffe direkt am Kai be- und entladen werden konnten", "Er war nur für Kriegsschiffe bestimmt", "Er war der erste überdachte Hafen Europas"], "c": 1, "e": "Mit der Eröffnung 1866 lagen Seeschiffe erstmals direkt am Kai. Das gilt als Beginn des modernen Hamburger Hafens. Seit 2008 ist der Sandtorhafen ein Traditionsschiffhafen."}, {"q": "Warum sind die Anleger hier schwimmende Pontons und keine festen Stege?", "o": ["Weil Holz im Wasser länger hält", "Weil die Elbe hier unter dem Einfluss der Gezeiten steht: Der Wasserstand steigt und fällt zweimal täglich um mehrere Meter", "Weil der Boden zu weich für Pfähle ist", "Weil man die Stege im Winter wegziehen muss"], "c": 1, "e": "Hamburg liegt rund 100 km von der Nordsee entfernt, aber die Elbe ist hier ein Tidefluss. Ebbe und Flut wechseln etwa alle sechs Stunden, und die Pontons heben und senken sich mit dem Wasser."}], "letter": "F"}, {"name": "Kibbelstegbrücke", "lat": 53.5441, "lng": 9.99325, "way": "Folgt dem Sandtorhafen nach Osten bis zu den Magellan-Terrassen. Dort beginnt die Kibbelstegbrücke, die nach Norden über die Speicherstadt führt.", "unlock": {"q": "Lauft bis zur Brücke über den Zollkanal. Wie viele Ebenen (Etagen) hat sie?", "type": "text", "accept": ["Mg==", "aWV3eg=="]}, "story": "Vor euch ragen die neuen Speicher auf, rot, mit Türmchen und Giebeln wie eine Burg. „Gebaut auf Pfählen tief im Schlick“, flüstert ein Arbeiter. „Ohne die würde alles im Fleet versinken.“", "qs": [{"q": "Wozu dient die obere Ebene der Kibbelstegbrücke?", "o": ["Als Aussichtsplattform für Touristen", "Als Fluchtweg bei Sturmflut – sie bleibt auch bei Hochwasser trocken, notfalls fahren hier Rettungswagen", "Als Radweg, damit sich Rad und Fuß nicht begegnen", "Als Lagerfläche für Waren"], "c": 1, "e": "Die HafenCity und die Speicherstadt liegen vor dem Deich. Bei Sturmflut verbindet die obere Ebene die höher gelegene HafenCity mit der Innenstadt."}, {"q": "Worauf stehen die Speichergebäude?", "o": ["Auf Stahlbetonpfählen", "Auf Eichenpfählen im weichen Untergrund", "Auf aufgeschüttetem Felsgestein", "Auf Schiffswracks"], "c": 1, "e": "Die Speicherstadt gilt als größter auf Eichenpfählen gegründeter Lagerhauskomplex der Welt. Holz, das ständig unter Wasser steht, fault kaum, weil Sauerstoff fehlt."}], "letter": "O"}, {"name": "Kornhausbrücke & Zollmuseum", "lat": 53.54612, "lng": 9.99712, "way": "Geht über den Kibbelsteg bis auf die Innenstadtseite des Zollkanals und dann am Zollkanal entlang nach Osten bis zur Kornhausbrücke. Am Südende der Brücke liegt das Deutsche Zollmuseum.", "unlock": {"q": "Am stadtseitigen Ende der Kornhausbrücke stehen zwei Figuren berühmter Seefahrer. Nennt einen der beiden Namen.", "type": "text", "accept": ["c3VibXVsb2s=", "c3VibXVsb2M=", "c3VibXVsb2tocG90c2lyaGM=", "c3VibXVsb2NyZWhwb3RzaXJoYw==", "YW1hZ2Fkb2NzYXY=", "YW1hZ2Fk", "YW1hZw==", "b2NzYXY="]}, "story": "Am Zollkanal stehen Zöllner mit Mütze und Notizbuch. „Ab hier wird kontrolliert“, sagt der Prinzipal. „Drüben im Freihafen sind wir zollfrei – aber wehe, jemand schmuggelt den Kaffee ungeprüft in die Stadt!“", "qs": [{"q": "Warum wurden ausgerechnet Seefahrer wie Kolumbus und Vasco da Gama auf die Brücke gestellt?", "o": ["Weil sie in Hamburg geboren wurden", "Als Hinweis auf Hamburgs Überseehandel, den der Freihafen ab 1888 sicherte", "Weil sie die Brücke bezahlt haben", "Weil hier früher ein Seefahrtsmuseum war"], "c": 1, "e": "Die Figuren kamen 1903 hinzu. Ursprünglich waren es vier: Kolumbus, Vasco da Gama, Cook und Magellan. Die beiden letzten sind nicht erhalten."}, {"q": "Was bedeutete „Freihafen“?", "o": ["Jeder durfte dort kostenlos wohnen", "Waren durften dort zollfrei gelagert, umgeschlagen und verarbeitet werden – Zoll fiel erst an, wenn sie ins übrige Reichsgebiet gingen", "Schiffe zahlten keine Hafengebühren", "Dort galten keine Gesetze"], "c": 1, "e": "Hamburg trat 1871 dem Deutschen Reich bei, blieb aber zunächst Zollausland. Mit dem Zollanschluss 1888 kam die Stadt ins Zollgebiet – als Ausgleich gab es den Freihafen mit der Speicherstadt."}], "letter": "R"}, {"name": "Wasserschloss", "lat": 53.54599, "lng": 10.00205, "way": "Überquert die Kornhausbrücke nach Süden und geht die Straße Alter Wandrahm nach Osten bis zum Wasserschloss. Den berühmten Fotoblick habt ihr von der Poggenmühlenbrücke.", "unlock": {"q": "In welcher Straße steht das Wasserschloss? Sucht das Straßenschild.", "type": "text", "accept": ["ZWhpZXJyZW5laWQ="]}, "story": "Zwischen zwei Fleeten steht ein Haus wie aus dem Märchen. „Da wohnen bald die Windenwärter“, erklärt ein Arbeiter. „Die Einzigen, die hier überhaupt wohnen dürfen.“ (Kleine Zeitreise: Das Wasserschloss wurde erst 1905–1907 gebaut.)", "qs": [{"q": "Wofür wurde das Wasserschloss ursprünglich genutzt?", "o": ["Als Wohnung des Bürgermeisters", "Als Unterkunft und Werkstatt der Windenwärter, die die Lastenwinden der Speicher warteten", "Als Zollstation", "Als Kaffeerösterei"], "c": 1, "e": "Das Wasserschloss war Wohnung und Werkstatt der Techniker für die Winden. Es war der einzige Ort in der Speicherstadt, an dem gewohnt werden durfte. Heute ist hier ein Teekontor mit Restaurant."}, {"q": "Seit wann gehört die Speicherstadt zum UNESCO-Welterbe?", "o": ["1991", "2003", "2015", "2017"], "c": 2, "e": "Seit Juli 2015 ist die Speicherstadt gemeinsam mit dem Kontorhausviertel und dem Chilehaus Welterbe. 1991 wurde sie unter Denkmalschutz gestellt, 2003 verlor sie den Freihafen-Status."}], "letter": "Z", "photo": "Bonus: Macht ein Gruppenfoto mit dem Wasserschloss im Hintergrund und zeigt es am Ende eurer Lehrkraft."}, {"name": "Pickhubenbrücke", "lat": 53.54431, "lng": 9.99541, "way": "Geht durch die Speicherstadt zurück nach Westen bis zur Pickhubenbrücke über das Brooksfleet (Karte und „Mein Standort“ helfen).", "unlock": {"q": "Schaut an den Speicherfassaden nach oben. Was ragt oben an den Giebeln über den senkrechten Reihen von Ladeluken heraus?", "type": "mc", "o": ["Fahnenmasten", "Windenausleger zum Hochziehen der Waren", "Blitzableiter mit Wetterhahn", "Lautsprecher"], "c": 1}, "story": "Unten im Fleet legt eine Schute an, ein flacher Lastkahn voller Kaffeesäcke. Oben öffnet sich eine Luke, ein Seil saust herab. Sack für Sack schwebt nach oben auf den Speicherboden. Hier wird euer Kaffee gelagert, geprüft und sortiert.", "qs": [{"q": "Warum haben die Speicher Zugänge zum Wasser UND zur Straße?", "o": ["Damit es bei Feuer zwei Fluchtwege gibt", "Waren kamen per Schute übers Fleet und wurden mit Winden hochgezogen; abtransportiert wurden sie über die Straße", "Weil die Straße für Fußgänger, das Wasser für Kutschen war", "Damit die Speicher besser gelüftet wurden"], "c": 1, "e": "Jeder Speicher hatte eine Wasser- und eine Landseite. So ging der Warenumschlag schnell: vom Schiff auf die Schute, dann in den Speicher, dann aufs Fuhrwerk."}, {"q": "Welche Waren lagerten typischerweise in der Speicherstadt?", "o": ["Kohle und Eisenerz", "Kaffee, Tee, Kakao, Gewürze und Tabak", "Autos und Maschinen", "Getreide und Kartoffeln aus Norddeutschland"], "c": 1, "e": "Gelagert wurden vor allem hochwertige Importgüter aus Übersee, viele davon auf Plantagen in Kolonien und Lateinamerika angebaut. Heute ist die Speicherstadt auch für den Orientteppich-Handel bekannt."}], "letter": "E"}, {"name": "Brooksbrücke", "lat": 53.54465, "lng": 9.98957, "way": "Geht weiter nach Westen bis zur Brooksbrücke, der Brücke über den Zollkanal mit den zwei großen Frauenfiguren.", "unlock": {"q": "Auf der Brooksbrücke stehen zwei große Frauenfiguren. Nennt eine von ihnen. (Tipp: Die eine ist die Schutzgöttin Hamburgs, nach der anderen ist ein Kontinent benannt.)", "type": "text", "accept": ["YWlub21tYWg=", "YXBvcnVl"]}, "story": "29. Oktober 1888: Die ganze Stadt hat frei. Fahnen, Girlanden, Blasmusik! Auf dieser Brücke setzt Kaiser Wilhelm II. mit silberner Kelle den Schlussstein der Zollanschlussbauten. Ihr steht in der Menge und reckt die Hälse.", "qs": [{"q": "Was geschah am 29. Oktober 1888 an der Brooksbrücke?", "o": ["Die erste Straßenbahn fuhr hier", "Kaiser Wilhelm II. setzte feierlich den Schlussstein und würdigte so den Zollanschluss Hamburgs", "Hier brach ein Großfeuer aus", "Hier legte das erste Dampfschiff an"], "c": 1, "e": "Am „Kaisertag“ hatten die Hamburger arbeitsfrei. Der Schlussstein ist erhalten und heute in die Hochwasserschutzwand auf der Stadtseite der Brücke eingebaut."}, {"q": "Was musste für den Bau der Speicherstadt weichen?", "o": ["Ein Wald und eine Wiese", "Das dicht bewohnte Kehrwieder-Wandrahm-Viertel: rund 20.000 Menschen mussten umziehen", "Ein Militärgelände", "Nichts, das Gebiet war unbebaut"], "c": 1, "e": "Ab 1883 wurden rund 1.000 Häuser abgerissen und über 20.000 Bewohner umgesiedelt, darunter viele Hafenarbeiter. Die meisten mussten in andere, oft ebenso beengte Viertel ziehen."}], "letter": "L"}, {"name": "Miniatur Wunderland", "lat": 53.5437, "lng": 9.9885, "way": "Von der Brooksbrücke sind es nur wenige Schritte zur Adresse Kehrwieder 2: das Ziel!", "unlock": {"q": "In welchem Speicherblock liegt das Miniatur Wunderland? Gesucht ist ein Buchstabe (steht an Gebäude/Eingang bzw. in der Adresse).", "type": "text", "accept": ["ZA==", "ZGtjb2xi"]}, "story": "Ihr seid am Speicher am Kehrwieder angekommen! Der Quartiersmann verschränkt die Arme: „Losungswort?“ – Heute ist in diesem Speicher eine der beliebtesten Attraktionen Deutschlands.", "qs": [{"q": "Seit wann gibt es das Miniatur Wunderland in diesem Speicher?", "o": ["1988", "2001", "2010", "2017"], "c": 1, "e": "Das Miniatur Wunderland wurde am 16. August 2001 eröffnet. Der Speicherblock D selbst stammt aus dem ersten Bauabschnitt (1885–1888/89)."}, {"q": "Schätzfrage: Wie viel Modellgleis ist im Wunderland verlegt? (Stand 2025)", "o": ["rund 1,6 km", "rund 16 km", "rund 160 km", "rund 1.600 km"], "c": 1, "e": "Laut Miniatur Wunderland waren es im April 2025 16.491 m Gleis mit über 1.200 Zügen. Die Anlage wächst weiter."}], "letter": "I"}], "solution": ["aWVyZmxsb3o="], "reflection": "Die Speicherstadt ist heute Welterbe. Wer hat 1888 vom Bau profitiert – und wer hat den Preis dafür bezahlt? Begründet in 2–3 Sätzen."};
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+const KEY = "rallye-speicherstadt-v1";
+const S = DATA.stations;
+const N = S.length;
+const dec = s => { try { return decodeURIComponent(escape(atob(s))).split("").reverse().join(""); } catch(e){ return ""; } };
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ß/g,"ss").replace(/[^a-z0-9]/g,"");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let st = load() || fresh();
+function fresh(){ return {group:"", start:null, end:null, cur:0, phase:"way", qi:0, tries:0, pts:Array(N).fill(null).map(()=>[0,0]), skipped:[], letters:[], solTries:0, solPts:0, refl:"", done:false, photo:false}; }
+function load(){ try { const v = JSON.parse(localStorage.getItem(KEY)); return v && v.pts ? v : null; } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+
+const app = document.getElementById("app");
+let map = null, markers = [], meMarker = null;
+
+function topbar(){
+  const tb = document.getElementById("topbar");
+  if(!st.start || st.done){ tb.classList.add("hidden"); return; }
+  tb.classList.remove("hidden");
+  document.getElementById("tb-group").textContent = st.group;
+  document.getElementById("tb-step").textContent = st.cur < N ? `Station ${st.cur+1}/${N}` : "Losungswort";
+  document.getElementById("tb-letters").innerHTML = S.map((s,i)=>`<span class="${i<st.letters.length?'got':''}">${i<st.letters.length?esc(st.letters[i]):''}</span>`).join("");
+}
+function totalPts(){ return st.pts.reduce((a,p)=>a+p[0]+p[1],0) + st.solPts; }
+const MAXPTS = N*4 + 4;
+
+function render(){
+  if(map){ try{ map.remove(); }catch(e){} map = null; meMarker = null; }
+  topbar(); window.scrollTo(0,0);
+  if(!st.start) return renderStart();
+  if(st.done) return renderFinal();
+  if(st.cur >= N) return renderSolution();
+  renderStation();
+}
+
+/* ---------- Start ---------- */
+function renderStart(){
+  app.innerHTML = `
+    <div class="kicker">Stadtrallye · Speicherstadt Hamburg</div>
+    <h1>Das Losungswort</h1>
+    <p class="story">${esc(DATA.intro)}</p>
+    <div class="card">
+      <b>So funktioniert's</b>
+      <ul class="muted" style="padding-left:20px;margin:8px 0 0">
+        <li>${N} Stationen von der Elbphilharmonie bis zum Miniatur Wunderland.</li>
+        <li>An jeder Station beantwortet ihr zuerst eine <b>Vor-Ort-Frage</b> – die könnt ihr nur dort lösen. Dann öffnet sich die Station.</li>
+        <li>Pro Station zwei Quizfragen: richtig im 1. Versuch = 2 Punkte, im 2. Versuch = 1 Punkt.</li>
+        <li>Jede Station verrät einen Buchstaben. Am Ende setzt ihr daraus das Losungswort zusammen.</li>
+        <li>Bleibt als Gruppe zusammen, achtet auf Verkehr und Kaikanten.</li>
+      </ul>
+      <p class="muted small" style="margin-top:10px">${esc(CONFIG.meeting)}</p>
+    </div>
+    <div class="card">
+      <label for="g">Name eurer Gruppe</label>
+      <input type="text" id="g" maxlength="40" placeholder="z. B. Kontor Nord" autocomplete="off">
+      <button class="btn" id="go">Rallye starten</button>
+    </div>`;
+  document.getElementById("go").onclick = () => {
+    const g = document.getElementById("g").value.trim();
+    if(!g){ document.getElementById("g").focus(); return; }
+    st.group = g; st.start = Date.now(); save(); render();
+  };
+}
+
+/* ---------- Karte ---------- */
+function mapBlock(){
+  return `<div id="map"></div>
+    <div class="maprow">
+      <button class="btn sec" id="locate">📍 Mein Standort</button>
+      <button class="btn sec" id="center">Ziel zeigen</button>
+    </div>
+    <p class="muted small" id="mapnote">Die gestrichelte Linie zeigt nur die Reihenfolge, nicht den genauen Fußweg.</p>`;
+}
+function initMap(){
+  const el = document.getElementById("map");
+  if(!el) return;
+  if(typeof L === "undefined"){
+    el.innerHTML = `<div style="padding:16px" class="muted">Karte konnte nicht geladen werden (keine Verbindung?). Nutzt die Wegbeschreibung unten.</div>`;
+    el.style.height = "auto"; return;
+  }
+  const s = S[st.cur];
+  map = L.map(el, {zoomControl:true, attributionControl:true}).setView([s.lat, s.lng], 16);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:19, attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+  L.polyline(S.map(x=>[x.lat,x.lng]), {color:"#1d2f45", weight:3, dashArray:"6 8", opacity:.6}).addTo(map);
+  markers = S.map((x,i)=>{
+    const done = i < st.cur, cur = i === st.cur;
+    const col = done ? "#2f7d4f" : cur ? "#9b3b2a" : "#9a948c";
+    const icon = L.divIcon({className:"", iconSize:[30,30], iconAnchor:[15,15],
+      html:`<div style="width:30px;height:30px;border-radius:50%;background:${col};color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font:700 14px system-ui">${i+1}</div>`});
+    return L.marker([x.lat,x.lng], {icon}).addTo(map).bindPopup(`<b>${i+1}. ${esc(i<=st.cur ? x.name : "???")}</b>`);
+  });
+  document.getElementById("center").onclick = () => map.setView([s.lat,s.lng], 17);
+  document.getElementById("locate").onclick = () => {
+    if(!navigator.geolocation){ note("Standort wird von diesem Gerät nicht unterstützt."); return; }
+    note("Standort wird gesucht …");
+    navigator.geolocation.getCurrentPosition(p => {
+      const ll = [p.coords.latitude, p.coords.longitude];
+      if(meMarker) map.removeLayer(meMarker);
+      meMarker = L.circleMarker(ll, {radius:8, color:"#fff", weight:3, fillColor:"#2a7de1", fillOpacity:1}).addTo(map).bindPopup("Ihr seid hier");
+      map.fitBounds(L.latLngBounds([ll,[s.lat,s.lng]]).pad(0.3));
+      const d = Math.round(map.distance(ll,[s.lat,s.lng]));
+      note(`Noch ca. ${d} m Luftlinie bis Station ${st.cur+1}.`);
+    }, () => note("Standort nicht verfügbar – bitte Standortfreigabe erlauben oder Wegbeschreibung nutzen."), {enableHighAccuracy:true, timeout:12000});
+  };
+}
+function note(t){ const n = document.getElementById("mapnote"); if(n) n.textContent = t; }
+
+/* ---------- Station ---------- */
+function renderStation(){
+  const i = st.cur, s = S[i];
+  let html = `<div class="kicker">Station ${i+1} von ${N}</div>`;
+  if(st.phase === "way" || st.phase === "unlock"){
+    html += `<h2>${i===0 ? esc(s.name) : "Auf zur nächsten Station"}</h2>
+      ${i>0 ? `<p class="muted">Nächstes Ziel: <b>${esc(s.name)}</b></p>` : ""}
+      ${mapBlock()}
+      <div class="card"><b>Weg</b><p style="margin:6px 0 0">${esc(s.way)}</p></div>
+      <div class="card" id="unlockcard">
+        <span class="pill">Vor-Ort-Frage</span>
+        <p style="margin:10px 0"><b>${esc(s.unlock.q)}</b></p>
+        ${s.unlock.type === "mc"
+          ? s.unlock.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join("")
+          : `<input type="text" id="ua" autocomplete="off" autocapitalize="off" placeholder="Antwort"><button class="btn" id="usend">Station öffnen</button>`}
+        <div id="ufb"></div>
+        <details style="margin-top:12px"><summary>Problem vor Ort? Lehrkraft-Code eingeben</summary>
+          <input type="text" id="tc" autocomplete="off" placeholder="Code" style="margin-top:8px"><button class="btn sec" id="tcsend">Freischalten</button></details>
+      </div>
+      <p class="muted small">${esc(CONFIG.meeting)}</p>`;
+    app.innerHTML = html; initMap();
+    const ok = () => { st.phase = "q"; st.qi = 0; st.tries = 0; save(); render(); };
+    const fail = () => { document.getElementById("ufb").innerHTML = `<div class="fb no">Das stimmt noch nicht. Schaut euch vor Ort genau um!</div>`; };
+    if(s.unlock.type === "mc"){
+      app.querySelectorAll("#unlockcard .opt").forEach(b => b.onclick = () => {
+        if(+b.dataset.k === s.unlock.c) ok(); else { b.classList.add("wrong"); b.disabled = true; fail(); }
+      });
+    } else {
+      const send = () => { const a = norm(document.getElementById("ua").value); if(a && s.unlock.accept.map(dec).includes(a)) ok(); else fail(); };
+      document.getElementById("usend").onclick = send;
+      document.getElementById("ua").onkeydown = e => { if(e.key === "Enter") send(); };
+    }
+    document.getElementById("tcsend").onclick = () => {
+      if(norm(document.getElementById("tc").value) === norm(CONFIG.teacherCode)){ if(!st.skipped.includes(i)) st.skipped.push(i); ok(); }
+      else document.getElementById("ufb").innerHTML = `<div class="fb no">Code falsch.</div>`;
+    };
+    return;
+  }
+  if(st.phase === "q"){
+    const q = s.qs[st.qi];
+    html += `<h2>${esc(s.name)}</h2>
+      ${st.qi === 0 ? `<p class="story">${esc(s.story)}</p>` : ""}
+      <div class="card"><span class="pill">Frage ${st.qi+1} von ${s.qs.length}</span>
+        <p style="margin:10px 0"><b>${esc(q.q)}</b></p>
+        ${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join("")}
+        <div id="qfb"></div>
+      </div>`;
+    app.innerHTML = html;
+    const btns = app.querySelectorAll(".opt");
+    btns.forEach(b => b.onclick = () => {
+      const k = +b.dataset.k;
+      if(k === q.c){
+        const p = st.tries === 0 ? 2 : st.tries === 1 ? 1 : 0;
+        st.pts[st.cur][st.qi] = p;
+        btns.forEach(x => x.disabled = true); b.classList.add("right");
+        document.getElementById("qfb").innerHTML = `<div class="fb ok"><b>Richtig! +${p} ${p===1?"Punkt":"Punkte"}.</b> ${esc(q.e)}</div><button class="btn" id="next">Weiter</button>`;
+        document.getElementById("next").onclick = () => {
+          if(st.qi + 1 < s.qs.length){ st.qi++; st.tries = 0; }
+          else { st.phase = "letter"; if(st.letters.length === st.cur) st.letters.push(s.letter); }
+          save(); render();
+        };
+        save();
+      } else {
+        st.tries++; b.classList.add("wrong"); b.disabled = true; save();
+        document.getElementById("qfb").innerHTML = `<div class="fb no">Leider falsch. ${st.tries===1?"Noch ein Versuch für 1 Punkt.":"Weiter probieren – Punkte gibt es dafür nicht mehr."}</div>`;
+      }
+    });
+    return;
+  }
+  if(st.phase === "letter"){
+    html += `<h2>${esc(s.name)} geschafft!</h2>
+      <div class="card" style="text-align:center"><div class="muted">Euer Buchstabe:</div><div class="bigletter">${esc(s.letter)}</div>
+      <div class="muted small">Gesammelt: ${st.letters.map(esc).join(" ")}</div></div>
+      ${s.photo ? `<div class="card"><span class="pill">Bonus</span><p style="margin:8px 0 0">${esc(s.photo)}</p></div>` : ""}
+      <button class="btn" id="cont">${st.cur+1 < N ? "Zur nächsten Station" : "Zum Losungswort"}</button>`;
+    app.innerHTML = html;
+    document.getElementById("cont").onclick = () => { st.cur++; st.phase = "way"; save(); render(); };
+  }
+}
+
+/* ---------- Losungswort ---------- */
+function renderSolution(){
+  app.innerHTML = `<div class="kicker">Finale</div><h2>„Losungswort?“</h2>
+    <p class="story">Der Quartiersmann wartet. Bringt eure acht Buchstaben in die richtige Reihenfolge. Das Wort beschreibt, was den Freihafen so besonders machte.</p>
+    <div class="tiles">${st.letters.map(l=>`<span>${esc(l)}</span>`).join("")}</div>
+    <div class="card"><label for="sol">Losungswort</label>
+      <input type="text" id="sol" autocomplete="off" autocapitalize="characters" placeholder="ein Wort, ${N} Buchstaben">
+      <button class="btn" id="solsend">Prüfen</button><div id="sfb"></div></div>
+    <div class="card hidden" id="reflcard"><span class="pill">Letzte Aufgabe</span>
+      <p style="margin:10px 0"><b>${esc(DATA.reflection)}</b></p>
+      <textarea id="refl" placeholder="Eure Antwort …">${esc(st.refl)}</textarea>
+      <button class="btn" id="fin">Rallye abschließen</button></div>`;
+  const solved = st.solPts > 0 || st.solTries < 0;
+  if(solved) showRefl();
+  function showRefl(){
+    document.getElementById("reflcard").classList.remove("hidden");
+    document.getElementById("sfb").innerHTML = `<div class="fb ok"><b>Richtig – ZOLLFREI!</b> Der Quartiersmann öffnet das Tor. Euer Kaffee darf zollfrei lagern, bis er weiterverkauft wird.</div>`;
+    document.getElementById("sol").disabled = true; document.getElementById("solsend").disabled = true;
+    const r = document.getElementById("refl"); r.oninput = () => { st.refl = r.value; save(); };
+    document.getElementById("fin").onclick = () => {
+      if(r.value.trim().length < 20){ r.focus(); r.placeholder = "Bitte 2–3 Sätze schreiben."; return; }
+      st.refl = r.value.trim(); st.done = true; st.end = Date.now(); save(); render();
+    };
+  }
+  const send = () => {
+    const a = norm(document.getElementById("sol").value);
+    if(!a) return;
+    if(DATA.solution.map(dec).includes(a)){
+      st.solPts = st.solTries === 0 ? 4 : st.solTries === 1 ? 2 : 1; if(st.solPts===0) st.solPts = 1; save(); showRefl();
+    } else {
+      st.solTries++; save();
+      document.getElementById("sfb").innerHTML = `<div class="fb no">Der Quartiersmann schüttelt den Kopf. Tipp: Denkt an Station 4!</div>`;
+    }
+  };
+  document.getElementById("solsend").onclick = send;
+  document.getElementById("sol").onkeydown = e => { if(e.key === "Enter") send(); };
+}
+
+/* ---------- Abschluss ---------- */
+function fmtTime(ms){ const m = Math.round(ms/60000); return `${Math.floor(m/60)} h ${m%60} min`; }
+function renderFinal(){
+  const t = new Date(st.end);
+  app.innerHTML = `
+    <div class="final-head"><div class="small" style="opacity:.8">Gruppe</div><div style="font-size:22px;font-weight:700">${esc(st.group)}</div>
+      <div class="big" style="margin-top:8px">ZOLLFREI</div>
+      <div style="font-size:20px;margin-top:6px"><b>${totalPts()}</b> / ${MAXPTS} Punkte</div>
+      <div class="small" style="opacity:.8;margin-top:4px">Dauer: ${fmtTime(st.end - st.start)} · fertig um ${t.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})} Uhr</div></div>
+    <p class="muted" style="text-align:center">Zeigt diesen Bildschirm eurer Lehrkraft.</p>
+    <div class="card"><b>Punkte je Station</b>
+      <table>${S.map((s,i)=>`<tr><td>${i+1}. ${esc(s.name)}${st.skipped.includes(i)?' <span class="pill">Code</span>':''}</td><td>${st.pts[i][0]+st.pts[i][1]} / 4</td></tr>`).join("")}
+      <tr><td>Losungswort</td><td>${st.solPts} / 4</td></tr></table>
+      <p class="muted small" style="margin-top:8px">Die Reflexionsfrage bewertet die Lehrkraft separat.</p></div>
+    <div class="card"><b>Eure Reflexion</b><p class="story" style="margin-top:8px">${esc(st.refl)}</p></div>
+    <details><summary>Lehrkraft: Rallye zurücksetzen</summary>
+      <input type="text" id="rc" placeholder="Lehrkraft-Code" style="margin-top:8px" autocomplete="off"><button class="btn sec" id="reset">Zurücksetzen</button></details>`;
+  document.getElementById("reset").onclick = () => {
+    if(norm(document.getElementById("rc").value) === norm(CONFIG.teacherCode)){ try{ localStorage.removeItem(KEY); }catch(e){} st = fresh(); render(); }
+  };
+}
+
+render();
+})();
+</script>
+</body>
+</html>
