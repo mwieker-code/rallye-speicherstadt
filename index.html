@@ -171,14 +171,24 @@ function initMap(){
   document.getElementById("locate").onclick = () => {
     if(!navigator.geolocation){ note("Standort wird von diesem Gerät nicht unterstützt."); return; }
     note("Standort wird gesucht …");
-    navigator.geolocation.getCurrentPosition(p => {
+    const okPos = p => {
+      if(!map) return;
       const ll = [p.coords.latitude, p.coords.longitude];
       if(meMarker) map.removeLayer(meMarker);
       meMarker = L.circleMarker(ll, {radius:8, color:"#fff", weight:3, fillColor:"#2a7de1", fillOpacity:1}).addTo(map).bindPopup("Ihr seid hier");
       map.fitBounds(L.latLngBounds([ll,[s.lat,s.lng]]).pad(0.3));
       const d = Math.round(map.distance(ll,[s.lat,s.lng]));
       note(`Noch ca. ${d} m Luftlinie bis Station ${st.cur+1}.`);
-    }, () => note("Standort nicht verfügbar – bitte Standortfreigabe erlauben oder Wegbeschreibung nutzen."), {enableHighAccuracy:true, timeout:12000});
+    };
+    const errPos = e => {
+      if(e && e.code === 1) note("Standortzugriff ist blockiert. iPhone: Einstellungen › Datenschutz & Sicherheit › Ortungsdienste › Safari-Websites › „Beim Verwenden“. Android: Standort für den Browser erlauben. Danach Seite neu laden.");
+      else note("Standort gerade nicht ermittelbar (kein GPS-Empfang?). Ein paar Schritte ins Freie gehen und nochmal tippen – oder die Wegbeschreibung nutzen.");
+    };
+    // Erst genau (GPS) versuchen; bei Timeout/Fehler ungenauer (WLAN/Mobilfunk) nachfassen
+    navigator.geolocation.getCurrentPosition(okPos, e => {
+      if(e && e.code === 1) return errPos(e);
+      navigator.geolocation.getCurrentPosition(okPos, errPos, {enableHighAccuracy:false, timeout:15000, maximumAge:60000});
+    }, {enableHighAccuracy:true, timeout:10000, maximumAge:30000});
   };
 }
 function note(t){ const n = document.getElementById("mapnote"); if(n) n.textContent = t; }
