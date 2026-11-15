@@ -1,4 +1,4 @@
-# Das Losungswort – Stadtrallye Speicherstadt
+# City Stories – Das Losungswort (Speicherstadt)
 
 Handy-Stadtrallye für Schülergruppen: 8 Stationen von der Elbphilharmonie bis zum Miniatur Wunderland, mit Vor-Ort-Fragen, Quiz, Karte (Leaflet/OpenStreetMap) und einem Losungswort am Ende.
 
