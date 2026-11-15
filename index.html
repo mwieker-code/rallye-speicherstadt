@@ -69,6 +69,8 @@
 const CONFIG = {
   teacherCode: "TMS1888",                 // Lehrkraft-Code: schaltet eine Station frei / setzt die Rallye zurück
   meeting: "Treffpunkt am Ende: Eingang Miniatur Wunderland, Kehrwieder 2", // erscheint auf jedem Bildschirm
+  radius: 60,                             // Meter: innerhalb dieses Umkreises öffnet sich eine Station automatisch per GPS
+  // Testmodus: Lehrkraft-Code + "TEST" (z. B. TMS1888TEST) ins Lehrkraft-Feld eingeben → Tippen auf die Karte simuliert den Standort
 };
 /* ======================================================== */
 const DATA = {"intro": "Hamburg, im Oktober 1888. Ihr seid Lehrlinge im Kontor des Kaffeehändlers Johannsen & Co. In wenigen Tagen feiert die Stadt den Zollanschluss an das Deutsche Reich – und mitten in der Aufregung ist eine Ladung Rohkaffee aus Brasilien angekommen. Sie soll in den nagelneuen Speicher am Kehrwieder. Doch der Quartiersmann öffnet nur, wer das geheime Losungswort kennt. Euer Prinzipal hat es in acht Buchstaben zerlegt und an acht Orten versteckt. Findet alle Buchstaben, setzt sie richtig zusammen – und lernt unterwegs, wie aus einem Wohnviertel die größte Lagerhausstadt der Welt wurde.", "stations": [{"name": "Elbphilharmonie", "lat": 53.54139, "lng": 9.98417, "way": "Startpunkt: Haupteingang der Elbphilharmonie (Westende der HafenCity, U3 Baumwall).", "unlock": {"q": "Wie heißt der Platz vor dem Haupteingang der Elbphilharmonie? Schaut auf das Straßenschild.", "type": "text", "accept": ["dGllaG5pZW5laGNzdHVlZHJlZHp0YWxw", "dGllaG5pZW5laGNzdHVlZA==", "dGllaG5pZWVoY3N0dWVkenRhbHA="]}, "story": "Euer Prinzipal steht am Kai und zeigt auf den mächtigen Kaiserspeicher mit seinem Uhrturm: „Hier landen die Überseeschiffe. Von hier aus geht unser Kaffee in die Stadt.“ Heute steht an derselben Stelle ein Konzerthaus aus Glas.", "qs": [{"q": "Worauf wurde der gläserne Neubau der Elbphilharmonie gesetzt?", "o": ["Auf den originalen Kaiserspeicher von 1875", "Auf den Kaispeicher A, ein Lagerhaus der 1960er-Jahre für Kakao, Tee und Tabak", "Auf einen Hochbunker aus dem Zweiten Weltkrieg", "Auf ein altes Werftgebäude"], "c": 1, "e": "Richtig ist der Kaispeicher A. Er wurde in den 1960er-Jahren nach Plänen von Werner Kallmorgen gebaut. Sein Vorgänger an derselben Stelle war der Kaiserspeicher von 1875, der im Zweiten Weltkrieg zerstört wurde."}, {"q": "Die öffentliche Plaza liegt zwischen altem Speicher und Glasbau. In welcher Höhe?", "o": ["17 m", "37 m", "57 m", "110 m"], "c": 1, "e": "Die Plaza liegt auf 37 m Höhe. Hinauf führt die 82 m lange, gebogene Rolltreppe „Tube“. 110 m ist der höchste Punkt des Gebäudes."}], "letter": "L"}, {"name": "Sandtorhafen", "lat": 53.54235, "lng": 9.9893, "way": "Geht an der Ostseite der Elbphilharmonie entlang zum Sandtorhafen – dem Hafenbecken mit den schwimmenden Stegen.", "unlock": {"q": "Was liegt hier im Sandtorhafen an den schwimmenden Stegen?", "type": "mc", "o": ["Große Containerschiffe", "Historische Schiffe (Segler, Dampfer, Schlepper)", "Kreuzfahrtschiffe", "Nur Ruderboote"], "c": 1}, "story": "„Seht ihr? Hier können die Schiffe direkt am Kai liegen“, sagt der Prinzipal stolz. „Früher mussten wir alles mühsam mit kleinen Booten vom Strom holen.“", "qs": [{"q": "Was war 1866 das Besondere am neuen Sandtorhafen?", "o": ["Er war Hamburgs erster Containerhafen", "Er war das erste künstliche Hafenbecken, in dem Seeschiffe direkt am Kai be- und entladen werden konnten", "Er war nur für Kriegsschiffe bestimmt", "Er war der erste überdachte Hafen Europas"], "c": 1, "e": "Mit der Eröffnung 1866 lagen Seeschiffe erstmals direkt am Kai. Das gilt als Beginn des modernen Hamburger Hafens. Seit 2008 ist der Sandtorhafen ein Traditionsschiffhafen."}, {"q": "Warum sind die Anleger hier schwimmende Pontons und keine festen Stege?", "o": ["Weil Holz im Wasser länger hält", "Weil die Elbe hier unter dem Einfluss der Gezeiten steht: Der Wasserstand steigt und fällt zweimal täglich um mehrere Meter", "Weil der Boden zu weich für Pfähle ist", "Weil man die Stege im Winter wegziehen muss"], "c": 1, "e": "Hamburg liegt rund 100 km von der Nordsee entfernt, aber die Elbe ist hier ein Tidefluss. Ebbe und Flut wechseln etwa alle sechs Stunden, und die Pontons heben und senken sich mit dem Wasser."}], "letter": "F"}, {"name": "Kibbelstegbrücke", "lat": 53.5441, "lng": 9.99325, "way": "Folgt dem Sandtorhafen nach Osten bis zu den Magellan-Terrassen. Dort beginnt die Kibbelstegbrücke, die nach Norden über die Speicherstadt führt.", "unlock": {"q": "Lauft bis zur Brücke über den Zollkanal. Wie viele Ebenen (Etagen) hat sie?", "type": "text", "accept": ["Mg==", "aWV3eg=="]}, "story": "Vor euch ragen die neuen Speicher auf, rot, mit Türmchen und Giebeln wie eine Burg. „Gebaut auf Pfählen tief im Schlick“, flüstert ein Arbeiter. „Ohne die würde alles im Fleet versinken.“", "qs": [{"q": "Wozu dient die obere Ebene der Kibbelstegbrücke?", "o": ["Als Aussichtsplattform für Touristen", "Als Fluchtweg bei Sturmflut – sie bleibt auch bei Hochwasser trocken, notfalls fahren hier Rettungswagen", "Als Radweg, damit sich Rad und Fuß nicht begegnen", "Als Lagerfläche für Waren"], "c": 1, "e": "Die HafenCity und die Speicherstadt liegen vor dem Deich. Bei Sturmflut verbindet die obere Ebene die höher gelegene HafenCity mit der Innenstadt."}, {"q": "Worauf stehen die Speichergebäude?", "o": ["Auf Stahlbetonpfählen", "Auf Eichenpfählen im weichen Untergrund", "Auf aufgeschüttetem Felsgestein", "Auf Schiffswracks"], "c": 1, "e": "Die Speicherstadt gilt als größter auf Eichenpfählen gegründeter Lagerhauskomplex der Welt. Holz, das ständig unter Wasser steht, fault kaum, weil Sauerstoff fehlt."}], "letter": "O"}, {"name": "Kornhausbrücke & Zollmuseum", "lat": 53.54612, "lng": 9.99712, "way": "Geht über den Kibbelsteg bis auf die Innenstadtseite des Zollkanals und dann am Zollkanal entlang nach Osten bis zur Kornhausbrücke. Am Südende der Brücke liegt das Deutsche Zollmuseum.", "unlock": {"q": "Am stadtseitigen Ende der Kornhausbrücke stehen zwei Figuren berühmter Seefahrer. Nennt einen der beiden Namen.", "type": "text", "accept": ["c3VibXVsb2s=", "c3VibXVsb2M=", "c3VibXVsb2tocG90c2lyaGM=", "c3VibXVsb2NyZWhwb3RzaXJoYw==", "YW1hZ2Fkb2NzYXY=", "YW1hZ2Fk", "YW1hZw==", "b2NzYXY="]}, "story": "Am Zollkanal stehen Zöllner mit Mütze und Notizbuch. „Ab hier wird kontrolliert“, sagt der Prinzipal. „Drüben im Freihafen sind wir zollfrei – aber wehe, jemand schmuggelt den Kaffee ungeprüft in die Stadt!“", "qs": [{"q": "Warum wurden ausgerechnet Seefahrer wie Kolumbus und Vasco da Gama auf die Brücke gestellt?", "o": ["Weil sie in Hamburg geboren wurden", "Als Hinweis auf Hamburgs Überseehandel, den der Freihafen ab 1888 sicherte", "Weil sie die Brücke bezahlt haben", "Weil hier früher ein Seefahrtsmuseum war"], "c": 1, "e": "Die Figuren kamen 1903 hinzu. Ursprünglich waren es vier: Kolumbus, Vasco da Gama, Cook und Magellan. Die beiden letzten sind nicht erhalten."}, {"q": "Was bedeutete „Freihafen“?", "o": ["Jeder durfte dort kostenlos wohnen", "Waren durften dort zollfrei gelagert, umgeschlagen und verarbeitet werden – Zoll fiel erst an, wenn sie ins übrige Reichsgebiet gingen", "Schiffe zahlten keine Hafengebühren", "Dort galten keine Gesetze"], "c": 1, "e": "Hamburg trat 1871 dem Deutschen Reich bei, blieb aber zunächst Zollausland. Mit dem Zollanschluss 1888 kam die Stadt ins Zollgebiet – als Ausgleich gab es den Freihafen mit der Speicherstadt."}], "letter": "R"}, {"name": "Wasserschloss", "lat": 53.54599, "lng": 10.00205, "way": "Überquert die Kornhausbrücke nach Süden und geht die Straße Alter Wandrahm nach Osten bis zum Wasserschloss. Den berühmten Fotoblick habt ihr von der Poggenmühlenbrücke.", "unlock": {"q": "In welcher Straße steht das Wasserschloss? Sucht das Straßenschild.", "type": "text", "accept": ["ZWhpZXJyZW5laWQ="]}, "story": "Zwischen zwei Fleeten steht ein Haus wie aus dem Märchen. „Da wohnen bald die Windenwärter“, erklärt ein Arbeiter. „Die Einzigen, die hier überhaupt wohnen dürfen.“ (Kleine Zeitreise: Das Wasserschloss wurde erst 1905–1907 gebaut.)", "qs": [{"q": "Wofür wurde das Wasserschloss ursprünglich genutzt?", "o": ["Als Wohnung des Bürgermeisters", "Als Unterkunft und Werkstatt der Windenwärter, die die Lastenwinden der Speicher warteten", "Als Zollstation", "Als Kaffeerösterei"], "c": 1, "e": "Das Wasserschloss war Wohnung und Werkstatt der Techniker für die Winden. Es war der einzige Ort in der Speicherstadt, an dem gewohnt werden durfte. Heute ist hier ein Teekontor mit Restaurant."}, {"q": "Seit wann gehört die Speicherstadt zum UNESCO-Welterbe?", "o": ["1991", "2003", "2015", "2017"], "c": 2, "e": "Seit Juli 2015 ist die Speicherstadt gemeinsam mit dem Kontorhausviertel und dem Chilehaus Welterbe. 1991 wurde sie unter Denkmalschutz gestellt, 2003 verlor sie den Freihafen-Status."}], "letter": "Z", "photo": "Bonus: Macht ein Gruppenfoto mit dem Wasserschloss im Hintergrund und zeigt es am Ende eurer Lehrkraft."}, {"name": "Pickhubenbrücke", "lat": 53.54431, "lng": 9.99541, "way": "Geht durch die Speicherstadt zurück nach Westen bis zur Pickhubenbrücke über das Brooksfleet (Karte und „Mein Standort“ helfen).", "unlock": {"q": "Schaut an den Speicherfassaden nach oben. Was ragt oben an den Giebeln über den senkrechten Reihen von Ladeluken heraus?", "type": "mc", "o": ["Fahnenmasten", "Windenausleger zum Hochziehen der Waren", "Blitzableiter mit Wetterhahn", "Lautsprecher"], "c": 1}, "story": "Unten im Fleet legt eine Schute an, ein flacher Lastkahn voller Kaffeesäcke. Oben öffnet sich eine Luke, ein Seil saust herab. Sack für Sack schwebt nach oben auf den Speicherboden. Hier wird euer Kaffee gelagert, geprüft und sortiert.", "qs": [{"q": "Warum haben die Speicher Zugänge zum Wasser UND zur Straße?", "o": ["Damit es bei Feuer zwei Fluchtwege gibt", "Waren kamen per Schute übers Fleet und wurden mit Winden hochgezogen; abtransportiert wurden sie über die Straße", "Weil die Straße für Fußgänger, das Wasser für Kutschen war", "Damit die Speicher besser gelüftet wurden"], "c": 1, "e": "Jeder Speicher hatte eine Wasser- und eine Landseite. So ging der Warenumschlag schnell: vom Schiff auf die Schute, dann in den Speicher, dann aufs Fuhrwerk."}, {"q": "Welche Waren lagerten typischerweise in der Speicherstadt?", "o": ["Kohle und Eisenerz", "Kaffee, Tee, Kakao, Gewürze und Tabak", "Autos und Maschinen", "Getreide und Kartoffeln aus Norddeutschland"], "c": 1, "e": "Gelagert wurden vor allem hochwertige Importgüter aus Übersee, viele davon auf Plantagen in Kolonien und Lateinamerika angebaut. Heute ist die Speicherstadt auch für den Orientteppich-Handel bekannt."}], "letter": "E"}, {"name": "Brooksbrücke", "lat": 53.54465, "lng": 9.98957, "way": "Geht weiter nach Westen bis zur Brooksbrücke, der Brücke über den Zollkanal mit den zwei großen Frauenfiguren.", "unlock": {"q": "Auf der Brooksbrücke stehen zwei große Frauenfiguren. Nennt eine von ihnen. (Tipp: Die eine ist die Schutzgöttin Hamburgs, nach der anderen ist ein Kontinent benannt.)", "type": "text", "accept": ["YWlub21tYWg=", "YXBvcnVl"]}, "story": "29. Oktober 1888: Die ganze Stadt hat frei. Fahnen, Girlanden, Blasmusik! Auf dieser Brücke setzt Kaiser Wilhelm II. mit silberner Kelle den Schlussstein der Zollanschlussbauten. Ihr steht in der Menge und reckt die Hälse.", "qs": [{"q": "Was geschah am 29. Oktober 1888 an der Brooksbrücke?", "o": ["Die erste Straßenbahn fuhr hier", "Kaiser Wilhelm II. setzte feierlich den Schlussstein und würdigte so den Zollanschluss Hamburgs", "Hier brach ein Großfeuer aus", "Hier legte das erste Dampfschiff an"], "c": 1, "e": "Am „Kaisertag“ hatten die Hamburger arbeitsfrei. Der Schlussstein ist erhalten und heute in die Hochwasserschutzwand auf der Stadtseite der Brücke eingebaut."}, {"q": "Was musste für den Bau der Speicherstadt weichen?", "o": ["Ein Wald und eine Wiese", "Das dicht bewohnte Kehrwieder-Wandrahm-Viertel: rund 20.000 Menschen mussten umziehen", "Ein Militärgelände", "Nichts, das Gebiet war unbebaut"], "c": 1, "e": "Ab 1883 wurden rund 1.000 Häuser abgerissen und über 20.000 Bewohner umgesiedelt, darunter viele Hafenarbeiter. Die meisten mussten in andere, oft ebenso beengte Viertel ziehen."}], "letter": "L"}, {"name": "Miniatur Wunderland", "lat": 53.5437, "lng": 9.9885, "way": "Von der Brooksbrücke sind es nur wenige Schritte zur Adresse Kehrwieder 2: das Ziel!", "unlock": {"q": "In welchem Speicherblock liegt das Miniatur Wunderland? Gesucht ist ein Buchstabe (steht an Gebäude/Eingang bzw. in der Adresse).", "type": "text", "accept": ["ZA==", "ZGtjb2xi"]}, "story": "Ihr seid am Speicher am Kehrwieder angekommen! Der Quartiersmann verschränkt die Arme: „Losungswort?“ – Heute ist in diesem Speicher eine der beliebtesten Attraktionen Deutschlands.", "qs": [{"q": "Seit wann gibt es das Miniatur Wunderland in diesem Speicher?", "o": ["1988", "2001", "2010", "2017"], "c": 1, "e": "Das Miniatur Wunderland wurde am 16. August 2001 eröffnet. Der Speicherblock D selbst stammt aus dem ersten Bauabschnitt (1885–1888/89)."}, {"q": "Schätzfrage: Wie viel Modellgleis ist im Wunderland verlegt? (Stand 2025)", "o": ["rund 1,6 km", "rund 16 km", "rund 160 km", "rund 1.600 km"], "c": 1, "e": "Laut Miniatur Wunderland waren es im April 2025 16.491 m Gleis mit über 1.200 Zügen. Die Anlage wächst weiter."}], "letter": "I"}], "solution": ["aWVyZmxsb3o="], "reflection": "Die Speicherstadt ist heute Welterbe. Wer hat 1888 vom Bau profitiert – und wer hat den Preis dafür bezahlt? Begründet in 2–3 Sätzen."};
@@ -84,12 +86,15 @@ const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 let st = load() || fresh();
-function fresh(){ return {group:"", start:null, end:null, cur:0, phase:"way", qi:0, tries:0, pts:Array(N).fill(null).map(()=>[0,0]), skipped:[], letters:[], solTries:0, solPts:0, refl:"", done:false, photo:false}; }
+if(!st.via) st.via = [];
+function fresh(){ return {group:"", start:null, end:null, cur:0, phase:"way", qi:0, tries:0, pts:Array(N).fill(null).map(()=>[0,0]), skipped:[], letters:[], solTries:0, solPts:0, refl:"", done:false, photo:false, via:[], test:false}; }
 function load(){ try { const v = JSON.parse(localStorage.getItem(KEY)); return v && v.pts ? v : null; } catch(e){ return null; } }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
 
 const app = document.getElementById("app");
-let map = null, markers = [], meMarker = null;
+let map = null, markers = [], meMarker = null, watchId = null;
+const VIA = {gps:"📍", frage:"❓", code:"🔑", test:"🧪"};
+const VIA_TXT = {gps:"per GPS", frage:"per Vor-Ort-Frage", code:"per Lehrkraft-Code", test:"im Testmodus"};
 
 function topbar(){
   const tb = document.getElementById("topbar");
@@ -103,6 +108,7 @@ function totalPts(){ return st.pts.reduce((a,p)=>a+p[0]+p[1],0) + st.solPts; }
 const MAXPTS = N*4 + 4;
 
 function render(){
+  if(watchId !== null){ try{ navigator.geolocation.clearWatch(watchId); }catch(e){} watchId = null; }
   if(map){ try{ map.remove(); }catch(e){} map = null; meMarker = null; }
   topbar(); window.scrollTo(0,0);
   if(!st.start) return renderStart();
@@ -167,18 +173,17 @@ function initMap(){
       html:`<div style="width:30px;height:30px;border-radius:50%;background:${col};color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font:700 14px system-ui">${i+1}</div>`});
     return L.marker([x.lat,x.lng], {icon}).addTo(map).bindPopup(`<b>${i+1}. ${esc(i<=st.cur ? x.name : "???")}</b>`);
   });
+  L.circle([s.lat,s.lng], {radius:CONFIG.radius, color:"#9b3b2a", weight:1.5, fillOpacity:.08, interactive:false}).addTo(map);
+  if(st.test) map.on("click", ev => fenceCheck({coords:{latitude:ev.latlng.lat, longitude:ev.latlng.lng, accuracy:5}}, true));
   document.getElementById("center").onclick = () => map.setView([s.lat,s.lng], 17);
   document.getElementById("locate").onclick = () => {
     if(!navigator.geolocation){ note("Standort wird von diesem Gerät nicht unterstützt."); return; }
     note("Standort wird gesucht …");
     const okPos = p => {
       if(!map) return;
-      const ll = [p.coords.latitude, p.coords.longitude];
-      if(meMarker) map.removeLayer(meMarker);
-      meMarker = L.circleMarker(ll, {radius:8, color:"#fff", weight:3, fillColor:"#2a7de1", fillOpacity:1}).addTo(map).bindPopup("Ihr seid hier");
-      map.fitBounds(L.latLngBounds([ll,[s.lat,s.lng]]).pad(0.3));
-      const d = Math.round(map.distance(ll,[s.lat,s.lng]));
-      note(`Noch ca. ${d} m Luftlinie bis Station ${st.cur+1}.`);
+      showMe(p);
+      map.fitBounds(L.latLngBounds([[p.coords.latitude,p.coords.longitude],[s.lat,s.lng]]).pad(0.3));
+      fenceCheck(p);
     };
     const errPos = e => {
       if(e && e.code === 1) note("Standortzugriff ist blockiert. iPhone: Einstellungen › Datenschutz & Sicherheit › Ortungsdienste › Safari-Websites › „Beim Verwenden“. Android: Standort für den Browser erlauben. Danach Seite neu laden.");
@@ -190,6 +195,35 @@ function initMap(){
       navigator.geolocation.getCurrentPosition(okPos, errPos, {enableHighAccuracy:false, timeout:15000, maximumAge:60000});
     }, {enableHighAccuracy:true, timeout:10000, maximumAge:30000});
   };
+}
+function showMe(p){
+  if(!map || typeof L === "undefined") return;
+  const ll = [p.coords.latitude, p.coords.longitude];
+  if(meMarker) map.removeLayer(meMarker);
+  meMarker = L.circleMarker(ll, {radius:8, color:"#fff", weight:3, fillColor:"#2a7de1", fillOpacity:1}).addTo(map).bindPopup("Ihr seid hier");
+}
+/* ---------- Geofence: Station öffnet sich im Umkreis automatisch ---------- */
+let onArrive = null;
+function distM(a,b,c,d){ const R=6371000, r=Math.PI/180, x=(d-b)*r*Math.cos((a+c)/2*r), y=(c-a)*r; return Math.sqrt(x*x+y*y)*R; }
+function fenceCheck(p, simulated){
+  if(st.cur >= N || (st.phase !== "way" && st.phase !== "unlock")) return;
+  const s = S[st.cur];
+  const d = distM(p.coords.latitude, p.coords.longitude, s.lat, s.lng);
+  const acc = Math.min(p.coords.accuracy || 0, 40);   // GPS-Ungenauigkeit zugunsten der Gruppe, max. 40 m
+  showMe(p);
+  const f = document.getElementById("fence");
+  if(d - acc <= CONFIG.radius){ if(onArrive) onArrive(simulated ? "test" : "gps"); return; }
+  if(f) f.textContent = `📍 Noch ca. ${Math.round(d)} m bis zur Station. Ab ${CONFIG.radius} m öffnet sie sich automatisch.`;
+  note(`Noch ca. ${Math.round(d)} m Luftlinie bis Station ${st.cur+1}.`);
+}
+function startWatch(){
+  if(!navigator.geolocation) return;
+  const f = () => document.getElementById("fence");
+  watchId = navigator.geolocation.watchPosition(p => fenceCheck(p), e => {
+    if(!f()) return;
+    if(e && e.code === 1) f().textContent = "📍 Standort ist gesperrt – beantwortet stattdessen die Vor-Ort-Frage.";
+    else f().textContent = "📍 Standort wird gesucht … Klappt es nicht, beantwortet die Vor-Ort-Frage.";
+  }, {enableHighAccuracy:true, maximumAge:10000, timeout:20000});
 }
 function note(t){ const n = document.getElementById("mapnote"); if(n) n.textContent = t; }
 
@@ -203,7 +237,9 @@ function renderStation(){
       ${mapBlock()}
       <div class="card"><b>Weg</b><p style="margin:6px 0 0">${esc(s.way)}</p></div>
       <div class="card" id="unlockcard">
-        <span class="pill">Vor-Ort-Frage</span>
+        ${st.test ? `<div class="fb no" style="margin:0 0 10px">🧪 Testmodus: Tippt auf die Karte, um euren Standort zu simulieren.</div>` : ""}
+        <div class="fb ok" id="fence" style="margin:0 0 12px">📍 Standort wird gesucht … Im Umkreis von ${CONFIG.radius} m öffnet sich die Station automatisch.</div>
+        <span class="pill">Oder: Vor-Ort-Frage</span>
         <p style="margin:10px 0"><b>${esc(s.unlock.q)}</b></p>
         ${s.unlock.type === "mc"
           ? s.unlock.o.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join("")
@@ -214,19 +250,23 @@ function renderStation(){
       </div>
       <p class="muted small">${esc(CONFIG.meeting)}</p>`;
     app.innerHTML = html; initMap();
-    const ok = () => { st.phase = "q"; st.qi = 0; st.tries = 0; save(); render(); };
+    const ok = how => { if(st.phase === "q") return; st.via[i] = how; st.phase = "q"; st.qi = 0; st.tries = 0; save(); render(); };
+    onArrive = ok;
+    if(!st.test) startWatch();
     const fail = () => { document.getElementById("ufb").innerHTML = `<div class="fb no">Das stimmt noch nicht. Schaut euch vor Ort genau um!</div>`; };
     if(s.unlock.type === "mc"){
       app.querySelectorAll("#unlockcard .opt").forEach(b => b.onclick = () => {
-        if(+b.dataset.k === s.unlock.c) ok(); else { b.classList.add("wrong"); b.disabled = true; fail(); }
+        if(+b.dataset.k === s.unlock.c) ok("frage"); else { b.classList.add("wrong"); b.disabled = true; fail(); }
       });
     } else {
-      const send = () => { const a = norm(document.getElementById("ua").value); if(a && s.unlock.accept.map(dec).includes(a)) ok(); else fail(); };
+      const send = () => { const a = norm(document.getElementById("ua").value); if(a && s.unlock.accept.map(dec).includes(a)) ok("frage"); else fail(); };
       document.getElementById("usend").onclick = send;
       document.getElementById("ua").onkeydown = e => { if(e.key === "Enter") send(); };
     }
     document.getElementById("tcsend").onclick = () => {
-      if(norm(document.getElementById("tc").value) === norm(CONFIG.teacherCode)){ if(!st.skipped.includes(i)) st.skipped.push(i); ok(); }
+      const c = norm(document.getElementById("tc").value);
+      if(c === norm(CONFIG.teacherCode + "TEST")){ st.test = !st.test; save(); render(); return; }
+      if(c === norm(CONFIG.teacherCode)){ if(!st.skipped.includes(i)) st.skipped.push(i); ok("code"); }
       else document.getElementById("ufb").innerHTML = `<div class="fb no">Code falsch.</div>`;
     };
     return;
@@ -234,6 +274,7 @@ function renderStation(){
   if(st.phase === "q"){
     const q = s.qs[st.qi];
     html += `<h2>${esc(s.name)}</h2>
+      ${st.qi === 0 && st.via[i] === "gps" ? `<div class="fb ok" style="margin-bottom:10px">📍 Angekommen – Station per GPS geöffnet!</div>` : ""}
       ${st.qi === 0 ? `<p class="story">${esc(s.story)}</p>` : ""}
       <div class="card"><span class="pill">Frage ${st.qi+1} von ${s.qs.length}</span>
         <p style="margin:10px 0"><b>${esc(q.q)}</b></p>
@@ -322,9 +363,10 @@ function renderFinal(){
       <div class="small" style="opacity:.8;margin-top:4px">Dauer: ${fmtTime(st.end - st.start)} · fertig um ${t.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})} Uhr</div></div>
     <p class="muted" style="text-align:center">Zeigt diesen Bildschirm eurer Lehrkraft.</p>
     <div class="card"><b>Punkte je Station</b>
-      <table>${S.map((s,i)=>`<tr><td>${i+1}. ${esc(s.name)}${st.skipped.includes(i)?' <span class="pill">Code</span>':''}</td><td>${st.pts[i][0]+st.pts[i][1]} / 4</td></tr>`).join("")}
+      <table>${S.map((s,i)=>`<tr><td>${i+1}. ${esc(s.name)} <span title="${esc(VIA_TXT[st.via[i]]||"")}">${VIA[st.via[i]] || (st.skipped.includes(i) ? VIA.code : "")}</span></td><td>${st.pts[i][0]+st.pts[i][1]} / 4</td></tr>`).join("")}
       <tr><td>Losungswort</td><td>${st.solPts} / 4</td></tr></table>
-      <p class="muted small" style="margin-top:8px">Die Reflexionsfrage bewertet die Lehrkraft separat.</p></div>
+      <p class="muted small" style="margin-top:8px">Station geöffnet: 📍 per GPS vor Ort · ❓ per Vor-Ort-Frage · 🔑 per Lehrkraft-Code${st.via.includes("test") ? " · 🧪 Testmodus" : ""}</p>
+      <p class="muted small" style="margin-top:4px">Die Reflexionsfrage bewertet die Lehrkraft separat.</p></div>
     <div class="card"><b>Eure Reflexion</b><p class="story" style="margin-top:8px">${esc(st.refl)}</p></div>
     <details><summary>Lehrkraft: Rallye zurücksetzen</summary>
       <input type="text" id="rc" placeholder="Lehrkraft-Code" style="margin-top:8px" autocomplete="off"><button class="btn sec" id="reset">Zurücksetzen</button></details>`;
